@@ -7,7 +7,7 @@ import { api, ApiError } from "@/lib/api";
 import type { Equipment, EquipmentInput, EquipmentStatus } from "@/types/equipment";
 
 const INPUT_CLASS =
-  "mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+  "mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100";
 
 /** Create (no `equipment`) or edit (with `equipment`) in one form. */
 export function EquipmentFormModal({
@@ -117,7 +117,7 @@ export function EquipmentFormModal({
           <button
             type="submit"
             disabled={submitting}
-            className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+            className="flex items-center gap-2 rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
           >
             {submitting && <Spinner className="h-4 w-4 border-white/40 border-t-white" />}
             {isEdit ? "Save changes" : "Add equipment"}
