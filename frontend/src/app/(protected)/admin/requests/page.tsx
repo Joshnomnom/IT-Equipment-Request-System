@@ -1,8 +1,22 @@
+import { PageHeader, SectionCard } from "@/components/page-layout";
+import { EmptyState } from "@/components/state-views";
+
 export default function AdminRequestsPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold">All Requests</h1>
-      <p className="mt-2 text-slate-500">Request list will be added in feat/admin-request-list.</p>
-    </div>
+    <>
+      <PageHeader
+        breadcrumb={["Approval", "Requisition Requests"]}
+        title="Requisition Requests"
+        description="Review, approve or reject equipment requests from employees."
+      />
+      <SectionCard title="Requests">
+        <div className="p-5">
+          <EmptyState
+            title="Not available yet"
+            description="The request list will be added in feat/admin-request-list."
+          />
+        </div>
+      </SectionCard>
+    </>
   );
 }

@@ -5,6 +5,17 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Formal navy palette used for the sidebar, primary buttons and accents. */
+@theme {
+  --color-brand-50: #eef3f9;
+  --color-brand-100: #d5e1ef;
+  --color-brand-600: #24497a;
+  --color-brand-700: #1b3a63;
+  --color-brand-800: #142d4e;
+  --color-brand-900: #0d1f38;
+  --color-brand-950: #08152a;
+}
+
 body {
-  @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  @apply bg-slate-100 text-slate-800 font-sans antialiased;
 }
