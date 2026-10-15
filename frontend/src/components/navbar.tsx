@@ -8,7 +8,10 @@ import type { User } from "@/types/auth";
 
 const LINKS: Record<User["role"], { href: string; label: string }[]> = {
   EMPLOYEE: [{ href: "/equipment", label: "Equipment" }],
-  ADMIN: [{ href: "/admin/requests", label: "Requests" }],
+  ADMIN: [
+    { href: "/admin/requests", label: "Requests" },
+    { href: "/admin/equipment", label: "Equipment" },
+  ],
 };
 
 export function Navbar({ user }: { user: User }) {
