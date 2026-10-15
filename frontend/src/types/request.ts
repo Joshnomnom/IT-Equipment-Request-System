@@ -16,6 +16,26 @@ export interface Requisition {
   equipment: Pick<Equipment, "id" | "name" | "category" | "stockQuantity" | "status">;
 }
 
+/** A request as returned by /admin/requests, with requester and reviewer. */
+export interface AdminRequisition extends Requisition {
+  user: { id: number; name: string; email: string };
+  reviewedBy: { id: number; name: string } | null;
+}
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface AdminRequestList {
+  data: AdminRequisition[];
+  meta: PaginationMeta;
+  /** Totals per status for the current search (ignores the status filter). */
+  counts: Record<RequestStatus, number>;
+}
+
 export interface CreateRequestInput {
   equipmentId: number;
   quantity: number;
