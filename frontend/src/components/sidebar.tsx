@@ -28,7 +28,10 @@ const NAV: Record<Role, NavSection[]> = {
   EMPLOYEE: [
     {
       title: "Requisition",
-      items: [{ href: "/equipment", label: "Equipment Catalogue", icon: CatalogIcon }],
+      items: [
+        { href: "/equipment", label: "Equipment Catalogue", icon: CatalogIcon },
+        { href: "/requests", label: "My Requests", icon: ClipboardIcon },
+      ],
     },
   ],
   ADMIN: [
