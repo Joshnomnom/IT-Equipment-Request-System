@@ -6,9 +6,17 @@ import { PageHeader, SectionCard, tableStyles as t } from "@/components/page-lay
 import { Pagination } from "@/components/pagination";
 import { RequestStatusBadge } from "@/components/request-status-badge";
 import { EmptyState, ErrorState, LoadingState } from "@/components/state-views";
+import { SuccessBanner } from "@/components/success-banner";
 import { useApiQuery } from "@/hooks/use-api-query";
 import { formatDateTime, requestRef } from "@/lib/format";
-import type { AdminRequestList, RequestStatus } from "@/types/request";
+import type { AdminRequestList, AdminRequisition, RequestStatus } from "@/types/request";
+import { ApproveDialog } from "./approve-dialog";
+import { HistoryDialog } from "./history-dialog";
+import { RejectDialog } from "./reject-dialog";
+
+type DialogState =
+  | null
+  | { kind: "approve" | "reject" | "history"; request: AdminRequisition };
 
 const PAGE_SIZE = 10;
 const SEARCH_DEBOUNCE_MS = 300;
@@ -81,6 +89,15 @@ function AdminRequests() {
   if (search) apiQuery.set("search", search);
   const { state, reload } = useApiQuery<AdminRequestList>(`/admin/requests?${apiQuery}`);
 
+  const [dialog, setDialog] = useState<DialogState>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const closeDialog = () => setDialog(null);
+  const afterAction = (message: string) => {
+    setDialog(null);
+    setNotice(message);
+    void reload(); // refresh rows and tab counts
+  };
+
   const counts = state.status === "success" ? state.data.counts : null;
   const countFor = (value: Tab) =>
     counts === null
@@ -94,8 +111,10 @@ function AdminRequests() {
       <PageHeader
         breadcrumb={["Approval", "Requisition Requests"]}
         title="Requisition Requests"
-        description="Review equipment requests submitted by employees."
+        description="Review, approve or reject equipment requests submitted by employees."
       />
+
+      {notice && <SuccessBanner message={notice} onDismiss={() => setNotice(null)} />}
 
       <SectionCard
         title="Requests"
@@ -170,13 +189,13 @@ function AdminRequests() {
                 <table className={t.table}>
                   <thead className={t.thead}>
                     <tr>
-                      <th className={t.th}>Reference</th>
+                      <th className={t.th}>Request</th>
                       <th className={t.th}>Requester</th>
                       <th className={t.th}>Equipment</th>
                       <th className={`${t.th} text-right`}>Qty</th>
                       <th className={t.th}>Reason</th>
                       <th className={t.th}>Status</th>
-                      <th className={t.th}>Submitted</th>
+                      <th className={`${t.th} text-right`}>Actions</th>
                     </tr>
                   </thead>
                   <tbody className={t.tbody}>
@@ -185,8 +204,11 @@ function AdminRequests() {
                         r.status === "PENDING" && r.quantity > r.equipment.stockQuantity;
                       return (
                         <tr key={r.id} className="align-top hover:bg-slate-50">
-                          <td className={`${t.td} whitespace-nowrap font-mono text-xs text-slate-600`}>
-                            {requestRef(r.id)}
+                          <td className={`${t.td} whitespace-nowrap`}>
+                            <p className="font-mono text-xs text-slate-700">{requestRef(r.id)}</p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              {formatDateTime(r.createdAt)}
+                            </p>
                           </td>
                           <td className={t.td}>
                             <p className="font-medium text-slate-900">{r.user.name}</p>
@@ -208,7 +230,7 @@ function AdminRequests() {
                               </p>
                             )}
                           </td>
-                          <td className={`${t.td} max-w-xs text-slate-600`}>
+                          <td className={`${t.td} max-w-[16rem] text-slate-600`}>
                             <p className="line-clamp-2" title={r.reason}>
                               {r.reason}
                             </p>
@@ -226,8 +248,31 @@ function AdminRequests() {
                               </p>
                             )}
                           </td>
-                          <td className={`${t.td} whitespace-nowrap text-slate-600`}>
-                            {formatDateTime(r.createdAt)}
+                          <td className={`${t.td} text-right`}>
+                            <div className="ml-auto flex w-20 flex-col gap-1.5">
+                              {r.status === "PENDING" && (
+                                <>
+                                  <button
+                                    onClick={() => setDialog({ kind: "approve", request: r })}
+                                    className="rounded border border-green-700 bg-green-700 px-2.5 py-1 text-xs font-medium text-white hover:bg-green-800"
+                                  >
+                                    Approve
+                                  </button>
+                                  <button
+                                    onClick={() => setDialog({ kind: "reject", request: r })}
+                                    className="rounded border border-red-300 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
+                                  >
+                                    Reject
+                                  </button>
+                                </>
+                              )}
+                              <button
+                                onClick={() => setDialog({ kind: "history", request: r })}
+                                className="rounded border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                              >
+                                History
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -242,6 +287,21 @@ function AdminRequests() {
             </div>
           ))}
       </SectionCard>
+
+      {dialog?.kind === "approve" && (
+        <ApproveDialog
+          request={dialog.request}
+          onClose={closeDialog}
+          onDone={afterAction}
+          onRejectInstead={() => setDialog({ kind: "reject", request: dialog.request })}
+        />
+      )}
+      {dialog?.kind === "reject" && (
+        <RejectDialog request={dialog.request} onClose={closeDialog} onDone={afterAction} />
+      )}
+      {dialog?.kind === "history" && (
+        <HistoryDialog request={dialog.request} onClose={closeDialog} />
+      )}
     </>
   );
 }

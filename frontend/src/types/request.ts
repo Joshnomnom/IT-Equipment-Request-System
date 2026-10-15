@@ -36,6 +36,15 @@ export interface AdminRequestList {
   counts: Record<RequestStatus, number>;
 }
 
+export interface AuditLogEntry {
+  id: number;
+  requestId: number;
+  previousStatus: RequestStatus | null;
+  newStatus: RequestStatus;
+  createdAt: string;
+  user: { id: number; name: string; role: "EMPLOYEE" | "ADMIN" };
+}
+
 export interface CreateRequestInput {
   equipmentId: number;
   quantity: number;
